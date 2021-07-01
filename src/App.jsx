@@ -1,29 +1,17 @@
-import React, { useRef, useState, Suspense, useEffect, useContext } from 'react'
-import { Canvas, useLoader, useThree } from '@react-three/fiber'
+import React, { useRef, useState, Suspense } from 'react'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei/core/OrbitControls'
-import { Sky } from '@react-three/drei/core/Sky'
-import Stats from 'stats.js'
 import Loader from './Loader'
 import HaasjeOver from './assets/HaasjeOver'
 import { Vector3 } from 'three'
 import Ground from './assets/Ground'
-import Dylano from './assets/Dylano'
-import Block from './assets/Block'
-import Auto from './assets/Auto'
-import Building from './assets/Building'
-import Marker from './assets/Marker'
 import Environment from './assets/Environment'
 import ApiContextProvider from './utils/ApiContextProvider'
-import { EffectComposer, DepthOfField } from '@react-three/postprocessing'
-import * as dat from 'dat.gui'
+import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { PerspectiveCamera } from '@react-three/drei/core/PerspectiveCamera'
-
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-import { ApiContext } from './utils/ApiContextProvider'
-
 import Info from 'components/Info/Info'
+import ResetButton from 'components/reset-button/ResetButton'
 
 const App = () => {
   const [focus, setFocus] = useState(false)
@@ -31,56 +19,18 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [infoComponents, setInfoComponents] = useState()
 
-  let passed = false
-
-  // const { posts } = useContext(ApiContext)
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true })
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll, { passive: true })
-    }
-  }, [cameraPos])
-
-  const handleScroll = () => {
-    const position = window.pageYOffset
-    if (position > 200) {
-      passed = true
-    }
-    if (passed && position < 50) {
-      playBackAnimations()
-    }
-  }
-
   const myCamera = useRef(null)
   const myControls = useRef(null)
-  const stats = new Stats()
-  stats.showPanel(1) // 0: fps, 1: ms, 2: mb, 3+: custom
-  // document.body.appendChild(stats.dom)
-
-  const gui = new dat.GUI()
-
-  stats.begin()
-  stats.end()
-
-  function animate() {
-    stats.begin()
-
-    // monitored code goes here
-    stats.end()
-    requestAnimationFrame(animate)
-  }
-  requestAnimationFrame(animate)
 
   const displayData = (object) => {
     const { userData } = object
-
     setTitle(userData.name)
     setInfoComponents(userData.components)
   }
 
+  // Target the clicked object and position next to it
   const playFocusAnimations = (x, y, z) => {
+    // save camera position before animation
     setCameraPos(
       new Vector3(
         myCamera.current.position.x,
@@ -111,8 +61,8 @@ const App = () => {
     setFocus(true)
   }
 
+  // Put camera back in it's original position and target 0
   const playBackAnimations = () => {
-    // back anims
     gsap.to(myCamera.current.position, {
       duration: 2,
       x: cameraPos.x,
@@ -141,13 +91,15 @@ const App = () => {
   return (
     <>
       <Canvas>
-        <fog attach='fog' color='white' near={600} far={800} />
+        {/* Perspective camera */}
         <PerspectiveCamera
           ref={myCamera}
           makeDefault
           position={[250, 200, 250]}
           zoom={1.5}
         />
+
+        {/* Orbit Controls */}
         <OrbitControls
           ref={myControls}
           camera={myCamera.current}
@@ -156,50 +108,33 @@ const App = () => {
           enabled={!focus}
           enableZoom={false}
         />
-        {/* <EffectComposer>
-          {focus && (
-            <DepthOfField
-              ref={test}
-              focusDistance={0.1} // where to focus
-              focalLength={0.5} // focal length
-              bokehScale={4} // bokeh size
-            />
-          )}
-        </EffectComposer> */}
+
+        {/* Lighting */}
         <ambientLight />
-        <hemisphereLight color={0xffffff} intensity={0.4} />
-        <directionalLight
-          color={0xffffff}
-          intensity={0.7}
-          position={new Vector3(250, 400, 100)}
-          castShadow
-        />
         <pointLight position={[10, 10, 10]} />
+
+        {/* Render model components as children of Suspense. Suspense renders a loader component if the models are not loaded yet */}
+        {/* After importing a GLB / GLTF in the project, compress them using 'npx gltf-pipeline -i Groundplane.glb -o compressed-groundplane.glb -d' */}
+        {/* Then go to 'https://gltf.pmnd.rs/' to check the model and copy the import code into a new component */}
         <Suspense fallback={<Loader />}>
           <ApiContextProvider>
-            {/* <Environment background /> */}
+            <Environment background />
             <HaasjeOver
               playFocusAnimations={playFocusAnimations}
               onClick={(e) => displayData(e.object.parent)}
             />
             <Ground />
-            <Building
-              onClick={(e) => displayData(e.object)}
-              playFocusAnimations={playFocusAnimations}
-            />
-            <Block />
-            <Marker />
-            <Auto />
           </ApiContextProvider>
         </Suspense>
+        {/* Render effect components as children of EffectComposer. */}
+        <EffectComposer>{<Vignette darkness={0.7} />}</EffectComposer>
       </Canvas>
-      {/* <Info focus={focus} title={title} body={body} img={img} /> */}
       <Info components={infoComponents} title={title} focus={focus} />
+      <ResetButton playBackAnimations={playBackAnimations}>
+        Reset Camera
+      </ResetButton>
     </>
   )
 }
 
 export default App
-
-// https://gltf.pmnd.rs/
-// npx gltf-pipeline -i Groundplane.glb -o compressed-groundplane.glb -d
