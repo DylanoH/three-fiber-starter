@@ -100,6 +100,7 @@ const App = () => {
         />
 
         {/* Orbit Controls */}
+        {/* Check out Orbit Controls and other usefull functionalities at 'https://docs.pmnd.rs/drei/introduction' */}
         <OrbitControls
           ref={myControls}
           camera={myCamera.current}
@@ -108,14 +109,14 @@ const App = () => {
           enabled={!focus}
           enableZoom={false}
         />
-
         {/* Lighting */}
         <ambientLight />
         <pointLight position={[10, 10, 10]} />
 
-        {/* Render model components as children of Suspense. Suspense renders a loader component if the models are not loaded yet */}
-        {/* After importing a GLB / GLTF in the project, compress them using 'npx gltf-pipeline -i Groundplane.glb -o compressed-groundplane.glb -d' */}
-        {/* Then go to 'https://gltf.pmnd.rs/' to check the model and copy the import code into a new component */}
+        {/* Render model components as children of Suspense. Suspense renders 
+            a loader component if the models are not loaded yet. After importing a GLB / GLTF in the project, 
+            compress them using 'npx gltf-pipeline -i Groundplane.glb -o compressed-groundplane.glb -d'
+            Then go to 'https://gltf.pmnd.rs/' to check the model and copy the import code into a new component */}
         <Suspense fallback={<Loader />}>
           <ApiContextProvider>
             <Environment background />
@@ -127,6 +128,7 @@ const App = () => {
           </ApiContextProvider>
         </Suspense>
         {/* Render effect components as children of EffectComposer. */}
+        {/* Check out effects at 'https://docs.pmnd.rs/react-postprocessing/introduction' */}
         <EffectComposer>{<Vignette darkness={0.7} />}</EffectComposer>
       </Canvas>
       <Info components={infoComponents} title={title} focus={focus} />

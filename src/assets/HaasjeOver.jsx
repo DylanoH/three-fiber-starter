@@ -8,13 +8,8 @@ import { ApiContext } from '../utils/ApiContextProvider'
 import { linkPost } from '../utils/linkPost'
 
 export default function Model(props) {
-  const [active, setActive] = useState(false)
   const { posts } = useContext(ApiContext)
   const [post, setPost] = useState()
-
-  useEffect(() => {
-    document.body.style.cursor = active ? 'pointer' : 'auto'
-  }, [active])
 
   useEffect(() => {
     setPost(linkPost(posts, group.current.userData.name))
@@ -38,8 +33,8 @@ export default function Model(props) {
         onClick={() =>
           props.playFocusAnimations(position.x, position.y, position.z)
         }
-        onPointerOver={() => setActive(true)}
-        onPointerOut={() => setActive(false)}
+        onPointerOver={() => (document.body.style.cursor = 'pointer')}
+        onPointerOut={() => (document.body.style.cursor = 'auto')}
       >
         <mesh
           castShadow
