@@ -14,8 +14,8 @@ const Button = styled.div`
   border-radius: 5px;
 `
 
-const ResetButton = ({ children, playBackAnimations }) => {
-  return <Button onClick={() => playBackAnimations()}>{children}</Button>
+const ResetButton = ({ children, click }) => {
+  return <Button onClick={() => click()}>{children}</Button>
 }
 
 export default ResetButton

@@ -115,7 +115,7 @@ const App = () => {
 
         {/* Render model components as children of Suspense. Suspense renders 
             a loader component if the models are not loaded yet. After importing a GLB / GLTF in the project, 
-            compress them using 'npx gltf-pipeline -i Groundplane.glb -o compressed-groundplane.glb -d'
+            compress them using 'npx gltf-pipeline -i nameOfModel.glb -o compressed-anything.glb -d'
             Then go to 'https://gltf.pmnd.rs/' to check the model and copy the import code into a new component */}
         <Suspense fallback={<Loader />}>
           <ApiContextProvider>
@@ -132,9 +132,7 @@ const App = () => {
         <EffectComposer>{<Vignette darkness={0.7} />}</EffectComposer>
       </Canvas>
       <Info components={infoComponents} title={title} focus={focus} />
-      <ResetButton playBackAnimations={playBackAnimations}>
-        Reset Camera
-      </ResetButton>
+      <ResetButton click={playBackAnimations}>Reset Camera</ResetButton>
     </>
   )
 }
