@@ -32,6 +32,11 @@ const InfoContainer = styled.div`
   width: 60vw;
   display: flex;
   justify-content: space-between;
+
+  img {
+    width: inherit;
+    margin-left: 50px;
+  }
 `
 
 const StatsContainer = styled.div`
